@@ -6,8 +6,8 @@ class OpenGLRenderer(object):
     # hier intrinsische Matrix für eigenes Datenset eintragen?
     intrinsic_matrix = {
         'linemod': np.array([[572.4114, 0., 325.2611],
-                              [0., 573.57043, 242.04899],
-                              [0., 0., 1.]]),
+                            [0., 573.57043, 242.04899],
+                            [0., 0., 1.]]),                                         
         # 'blender': np.array([[280.0, 0.0, 128.0],
         #                      [0.0, 280.0, 128.0],
         #                      [0.0, 0.0, 1.0]]),

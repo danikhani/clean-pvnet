@@ -40,6 +40,7 @@ class Normalize(object):
         self.to_bgr = to_bgr
 
     def __call__(self, img, kpts, mask):
+        img= img[:,:,:3]
         img -= self.mean
         img /= self.std
         if self.to_bgr:
