@@ -71,7 +71,7 @@ def record_ann(model_meta, img_id, ann_id, images, annotations, cls_type):
         info = {'file_name': rgb_path, 'height': 512, 'width': 512, 'id': img_id}
         images.append(info)
 
-        # hier muss die Pose aus dem .json abgegriffen werden
+        # hier muss der Pfad zu dem korrekten .json-file erstellt werden
         datei = number + '.json'
         pose_path = os.path.join(data_root, datei)
 
@@ -83,30 +83,26 @@ def record_ann(model_meta, img_id, ann_id, images, annotations, cls_type):
         
         objekt = annotation['objects']
         objekt_klasse = objekt[0]["class"]
-        #quaternion_cam2world = R.from_quat(np.array(annotation['camera_data']['quaternion_xyzw_worldframe']))
        
         if klasse in objekt_klasse:
 
             translation = np.array(objekt[0]['location']) * 10
-            #translation[0] = translation[0]*(-1)
-            #translation[1] = translation[1]*(-1)
 
             #quaternion_obj2cam = R.from_quat(np.array(objekt[0]['quaternion_xyzw']))
-            #quaternion_obj2world = quaternion_obj2cam * quaternion_cam2world
             #mirrored_y_axis = np.dot(quaternion_obj2cam.as_matrix(), np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]]))
             
-            pose = np.array(objekt[0]['pose_transform'])
-            rotation = pose[0:3,0:3]
-            #rotation = rotation.transpose()
+            rotation = np.asarray(objekt[0]['pose_transform'])[0:3, 0:3]
 
             # Drehung um 270° um die Y-Achse
             #rotation = np.dot(rotation, np.array([[0,0,-1],[0,1,0],[1,0,0]]))
 
             # Drehung um 180° um die Z-Achse --> von links auf rechtshand-koordiantensystem
-            rotation = np.dot(rotation, np.array([[-1,0,0],[0,-1,0],[0,0,1]]))
+            rotation = np.dot(rotation, np.array([[-1, 0, 0],[0, -1, 0],[0, 0, -1]]))
 
-            #mirrored_y_axis = np.dot(rotation, np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]]))
-          
+            #rotation = np.dot(rotation.T, np.array([[0, 1, 0], [-1, 0, 0], [0, 0, -1]]))
+            rotation = np.dot(rotation.T, np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]]))
+            rotation = np.dot(rotation, np.array([[-1, 0, 0],[0, 1, 0],[0, 0, 1]]))
+
             pose = np.column_stack((rotation, translation))
 
             #corner_2d = np.array(objekt[0]['projected_cuboid'])
@@ -118,10 +114,7 @@ def record_ann(model_meta, img_id, ann_id, images, annotations, cls_type):
 
         corner_2d = base_utils.project(corner_3d, K, pose)
         center_2d = base_utils.project(center_3d[None], K, pose)[0]
-        print("corner_2d")
-        print(corner_2d)
-        print("center_2d")
-        print(center_2d)
+
         fps_2d = base_utils.project(fps_3d, K, pose)
 
         # mask_path = os.path.join(mask_dir, '{}.png'.format(ind))
