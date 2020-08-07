@@ -88,25 +88,16 @@ def record_ann(model_meta, img_id, ann_id, images, annotations, cls_type):
 
             translation = np.array(objekt[0]['location']) * 10
 
-            #quaternion_obj2cam = R.from_quat(np.array(objekt[0]['quaternion_xyzw']))
-            #mirrored_y_axis = np.dot(quaternion_obj2cam.as_matrix(), np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]]))
-            
             rotation = np.asarray(objekt[0]['pose_transform'])[0:3, 0:3]
-
-            # Drehung um 270° um die Y-Achse
-            #rotation = np.dot(rotation, np.array([[0,0,-1],[0,1,0],[1,0,0]]))
 
             # Drehung um 180° um die Z-Achse --> von links auf rechtshand-koordiantensystem
             rotation = np.dot(rotation, np.array([[-1, 0, 0],[0, -1, 0],[0, 0, -1]]))
 
             #rotation = np.dot(rotation.T, np.array([[0, 1, 0], [-1, 0, 0], [0, 0, -1]]))
             rotation = np.dot(rotation.T, np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]]))
-            rotation = np.dot(rotation, np.array([[-1, 0, 0],[0, 1, 0],[0, 0, 1]]))
 
             pose = np.column_stack((rotation, translation))
 
-            #corner_2d = np.array(objekt[0]['projected_cuboid'])
-            #center_2d = np.array(objekt[0]['projected_cuboid_centroid'])
             print(pose)
         else:
             print("Klasse in Annotation nicht enthalten!")
@@ -117,7 +108,6 @@ def record_ann(model_meta, img_id, ann_id, images, annotations, cls_type):
 
         fps_2d = base_utils.project(fps_3d, K, pose)
 
-        # mask_path = os.path.join(mask_dir, '{}.png'.format(ind))
         # hier muss die Segmentierungs-Maske (Instanz) aus dem erzeugten png abgegriffen werden
         datei = number + '.cs.png'
         mask_path = os.path.join(data_root, datei)
