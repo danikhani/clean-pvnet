@@ -7,8 +7,6 @@ import tqdm
 from PIL import Image
 from lib.utils import base_utils
 import json
-from scipy.spatial.transform import Rotation as R
-from numpy.linalg import inv
 
 
 
@@ -51,56 +49,52 @@ def record_ann(model_meta, img_id, ann_id, images, annotations, cls_type):
     fps_3d = model_meta['fps_3d']
     K = model_meta['K']
 
-    #inds = range(len(os.listdir(data_root)))
-    length = int(input("Bildanzahl? "))
-    #length = 10
+    length = int(input("How many pictures do you want to use? "))
     inds = range(length)
 
     for ind in tqdm.tqdm(inds):
-        klasse = cls_type # Name der Objektklasse, für welche trainiert werden soll
+        desired_class = cls_type # name of the objectclass, on which you want to train
 
         number = str(ind) 
         number = number.zfill(6)
+
+        # getting rgb
         datei = number + '.png'
         rgb_path = os.path.join(data_root, datei)
 
         rgb = Image.open(rgb_path).convert('RGB')
         img_size = rgb.size
         img_id += 1
-        #info = {'file_name': rgb_path, 'height': img_size[1], 'width': img_size[0], 'id': img_id}
-        info = {'file_name': rgb_path, 'height': 512, 'width': 512, 'id': img_id}
+        info = {'file_name': rgb_path, 'height': img_size[1], 'width': img_size[0], 'id': img_id}
         images.append(info)
 
-        # hier muss der Pfad zu dem korrekten .json-file erstellt werden
+        # path to annotations from ndds
         datei = number + '.json'
         pose_path = os.path.join(data_root, datei)
 
 
-        # hier muss die Pose (R,t) aus den Annotationen richtig ausgelesen werden
+        # getting pose of annotations from ndds
 
         with open(pose_path,'r') as file:
             annotation = json.loads(file.read())
         
-        objekt = annotation['objects']
-        objekt_klasse = objekt[0]["class"]
+        object_from_annotation = annotation['objects']
+        object_class = object_from_annotation[0]["class"]
        
-        if klasse in objekt_klasse:
+        if desired_class in object_class:
 
-            translation = np.array(objekt[0]['location']) * 10
+            # translation
+            translation = np.array(object_from_annotation[0]['location']) * 10
 
-            rotation = np.asarray(objekt[0]['pose_transform'])[0:3, 0:3]
-
-            # Drehung um 180° um die Z-Achse --> von links auf rechtshand-koordiantensystem
+            # rotation
+            rotation = np.asarray(object_from_annotation[0]['pose_transform'])[0:3, 0:3]
             rotation = np.dot(rotation, np.array([[-1, 0, 0],[0, -1, 0],[0, 0, -1]]))
-
-            #rotation = np.dot(rotation.T, np.array([[0, 1, 0], [-1, 0, 0], [0, 0, -1]]))
             rotation = np.dot(rotation.T, np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]]))
 
+            # pose
             pose = np.column_stack((rotation, translation))
-
-            print(pose)
         else:
-            print("Klasse in Annotation nicht enthalten!")
+            print("No such class in annotations!")
             pass 
 
         corner_2d = base_utils.project(corner_3d, K, pose)
@@ -108,7 +102,7 @@ def record_ann(model_meta, img_id, ann_id, images, annotations, cls_type):
 
         fps_2d = base_utils.project(fps_3d, K, pose)
 
-        # hier muss die Segmentierungs-Maske (Instanz) aus dem erzeugten png abgegriffen werden
+        # getting segmentation-mask
         datei = number + '.cs.png'
         mask_path = os.path.join(data_root, datei)
 
@@ -119,10 +113,8 @@ def record_ann(model_meta, img_id, ann_id, images, annotations, cls_type):
         anno.update({'fps_3d': fps_3d.tolist(), 'fps_2d': fps_2d.tolist()})
         anno.update({'K': K.tolist(), 'pose': pose.tolist()})
 
-        # rgb_dir existiert nicht mehr, hier wird mit data_root gearbeitet
         anno.update({'data_root': data_root})
 
-        # anstatt der Klasse "cat" wird hier die Klasse durch die Eingabe übergeben
         anno.update({'type': 'real', 'cls': cls_type})
         annotations.append(anno)
 
@@ -132,8 +124,8 @@ def record_ann(model_meta, img_id, ann_id, images, annotations, cls_type):
 def custom_to_coco(data_root):
     model_path = os.path.join(data_root, 'model.ply')
 
-    #cls_type = input("Klassenname? ")
-    cls_type = 'BC283R_CPA_000'
+    cls_type = input("On which class do you want to train? ")
+
     renderer = OpenGLRenderer(model_path)
     K = np.loadtxt(os.path.join(data_root, 'camera.txt'))
 
@@ -160,7 +152,7 @@ def custom_to_coco(data_root):
     annotations = []
 
     img_id, ann_id = record_ann(model_meta, img_id, ann_id, images, annotations, cls_type)
-    # auch hier wird "cat" zu cls_type
+
     categories = [{'supercategory': 'none', 'id': 1, 'name': cls_type}]
     instance = {'images': images, 'annotations': annotations, 'categories': categories}
 
