@@ -7,6 +7,7 @@ RUN ln -fs /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 # - hhttps://websiteforstudents.com/installing-the-latest-python-3-7-on-ubuntu-16-04-18-04/
 # - https://github.com/zju3dv/pvnet/blob/master/docker/Dockerfile
 # - https://github.com/zju3dv/clean-pvnet
+# - https://github.com/KatharinaSchmidt/clean-pvnet
 RUN apt-get update && \
     apt install -yq software-properties-common && \
     add-apt-repository ppa:deadsnakes/ppa && \
