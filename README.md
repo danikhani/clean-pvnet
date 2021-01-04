@@ -26,6 +26,8 @@ First off: Im totally new to docker and I used the docker file from [Floris](htt
  ```
 after stoping the container with docker stop #containerID and rerunning it from step 3, the step 4 should be also repeated.
 5. Compile cuda extensions under `lib/csrc`:
+
+
     ```
     ROOT=/path/to/clean-pvnet
     cd $ROOT/lib/csrc
@@ -37,13 +39,6 @@ after stoping the container with docker stop #containerID and rerunning it from 
     cd ../nn
     python setup.py build_ext --inplace
     cd ../fps
-    python setup.py build_ext --inplace
-
-    # If you want to use the uncertainty-driven PnP
-    cd ../uncertainty_pnp
-    sudo apt-get install libgoogle-glog-dev
-    sudo apt-get install libsuitesparse-dev
-    sudo apt-get install libatlas-base-dev
     python setup.py build_ext --inplace
     ```
 
