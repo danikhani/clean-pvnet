@@ -31,32 +31,34 @@ def read_ply_points(ply_path):
     return points
 
 def sample_fps_points(data_root):
-    ply_path = os.path.join(data_root, 'model.ply')
-    ply_points = read_ply_points(ply_path)
-    fps_points = fps_utils.farthest_point_sampling(ply_points, 8, True)
-    np.savetxt(os.path.join(data_root, 'fps.txt'), fps_points)
+    #ply_path = os.path.join(data_root, 'model.ply')
+    #ply_points = read_ply_points(ply_path)
+    #fps_points = fps_utils.farthest_point_sampling(ply_points, 8, True)
+    #np.savetxt(os.path.join(data_root, 'fps.txt'), fps_points)
 
     model_path = os.path.join(data_root, 'model.ply')
     renderer = OpenGLRenderer(model_path)
 
     model = renderer.model['pts'] / 1000
-    corner_3d = get_model_corners(model) 
+    corner_3d = get_model_corners(model)
+    # xyz corners
     print("corner_3d:")
     print(corner_3d)
+    # xyz center
     center_3d = (np.max(corner_3d, 0) + np.min(corner_3d, 0)) / 2
     print("center_3d:")
     print(center_3d)
-
+    # xyz distances
     distances = np.max(corner_3d, 0) - np.min(corner_3d, 0)
     print("distances:")
     print(distances)
-
-    #diameter is not correct. Its not used in EffieicentPose
+    # diameter is not correct. Its not used in EffieicentPose
     diameter = np.linalg.norm(np.max(corner_3d, 0) - np.min(corner_3d, 0))
     print("diameter:")
     print(diameter)
+
     # saving the data
-    savedata = os.path.join(data_root, 'fps222.yml')
+    savedata = os.path.join(data_root, 'models_info.yml')
     export_model_para_yml(savedata,16,corner_3d,distances,diameter)
 
     print(corner_3d[0][0])
@@ -80,5 +82,5 @@ def export_model_para_yml(file_path, model_number, corner_3d, distances,diameter
 
 
 
-sample_fps_points('data/custom')
+sample_fps_points('data')
 
