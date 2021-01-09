@@ -77,7 +77,8 @@ after stoping the container with docker stop #containerID and rerunning it from 
     python setup.py build_ext --inplace
     ```
 ## Using the code
-To be added...
+
+Add your .ply model to the folder /data. Rename your model to "model.ply" and run the give3d script with "python give3d.py". model.yml with the linemod format of 8 corners of the cubiod will be generated in folder data.
 
 
 ## Citation
