@@ -1,7 +1,7 @@
 Run these in a bash:
 
 export PVNET_DOCKER=pvnet_ndds:latest
-export PVNET_GIT=$path/to/clean-pvnet
+export PVNET_GIT=/home/dani/Documents/RWTH/ATP/linemod_understand/my_pv/clean-pvnet
 source $PVNET_GIT/docker/setup_dev.bash
 
 for running the docker run:
