@@ -78,7 +78,7 @@ after stoping the container with docker stop #containerID and rerunning it from 
     ```
 ## Using the code
 
-Add your .ply model to the folder /data. Rename your model to "model.ply" and run the give3d script with "python give3d.py". model.yml with the linemod format of 8 corners of the cubiod will be generated in folder data.
+Add your .ply model to the folder /data. Rename your model to "model.ply" and run the give3d script with "python give3d.py". models_info.yml with the linemod format of 8 corners of the cubiod will get generated in folder data.
 
 
 ## Citation
